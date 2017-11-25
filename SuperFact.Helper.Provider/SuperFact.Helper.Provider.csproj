@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SuperFact.Entity.Model\SuperFact.Entity.Model.csproj" />
+    <ProjectReference Include="..\SuperFact.Model.Contract\SuperFact.Model.Contract.csproj" />
+  </ItemGroup>
+
+</Project>

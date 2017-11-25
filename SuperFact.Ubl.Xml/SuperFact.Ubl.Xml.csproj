@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SuperFact.Helper.Comun\SuperFact.Helper.Comun.csproj" />
+    <ProjectReference Include="..\SuperFact.Model.Contract\SuperFact.Model.Contract.csproj" />
+    <ProjectReference Include="..\SuperFact.Model.Ubl\SuperFact.Model.Ubl.csproj" />
+  </ItemGroup>
+
+</Project>

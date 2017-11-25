@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SuperFact.Business.IService\SuperFact.Business.IService.csproj" />
+    <ProjectReference Include="..\SuperFact.Data.IRepository\SuperFact.Data.IRepository.csproj" />
+    <ProjectReference Include="..\SuperFact.Entity.Model\SuperFact.Entity.Model.csproj" />
+    <ProjectReference Include="..\SuperFact.Helper.Sunat.Soa\SuperFact.Helper.Sunat.Soa.csproj" />
+    <ProjectReference Include="..\SuperFact.Helper.Sunat\SuperFact.Helper.Sunat.csproj" />
+    <ProjectReference Include="..\SuperFact.Model.Contract\SuperFact.Model.Contract.csproj" />
+    <ProjectReference Include="..\SuperFact.Ubl.Signed\SuperFact.Ubl.Signed.csproj" />
+    <ProjectReference Include="..\SuperFact.Ubl.Xml\SuperFact.Ubl.Xml.csproj" />
+  </ItemGroup>
+
+</Project>

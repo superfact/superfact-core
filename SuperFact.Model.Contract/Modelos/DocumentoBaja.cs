@@ -1,0 +1,16 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace SuperFact.Model.Contract.Modelos
+{
+    public class DocumentoBaja : DocumentoResumenDetalle
+    {
+        [JsonProperty(Required = Required.Always)]
+        public string Correlativo { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public string MotivoBaja { get; set; }
+    }
+}
