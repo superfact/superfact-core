@@ -8,6 +8,7 @@
     <ProjectReference Include="..\SuperFact.Business.IService\SuperFact.Business.IService.csproj" />
     <ProjectReference Include="..\SuperFact.Data.IRepository\SuperFact.Data.IRepository.csproj" />
     <ProjectReference Include="..\SuperFact.Entity.Model\SuperFact.Entity.Model.csproj" />
+    <ProjectReference Include="..\SuperFact.Helper.Provider\SuperFact.Helper.Provider.csproj" />
     <ProjectReference Include="..\SuperFact.Helper.Sunat.Soa\SuperFact.Helper.Sunat.Soa.csproj" />
     <ProjectReference Include="..\SuperFact.Helper.Sunat\SuperFact.Helper.Sunat.csproj" />
     <ProjectReference Include="..\SuperFact.Model.Contract\SuperFact.Model.Contract.csproj" />

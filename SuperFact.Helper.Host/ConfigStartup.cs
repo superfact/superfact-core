@@ -47,17 +47,38 @@ namespace SuperFact.Helper.Host
 
 
             // Add application services.
-            services.AddScoped<IDireccionSunatProvider, DireccionSunatProvider>();
-            services.AddScoped<IEmpresaProvider, EmpresaProvider>();          
             services.AddScoped<ICertificadoDigitalProvider, CertificadoDigitalProvider>();
+            services.AddScoped<IComunicacionBajaProvider, ComunicacionBajaProvider>();
+            services.AddScoped<IDireccionSunatProvider, DireccionSunatProvider>();
+            services.AddScoped<IEmpresaProvider, EmpresaProvider>();       
             services.AddScoped<IFacturaProvider, FacturaProvider>();
+            services.AddScoped<IGuiaRemisionProvider, GuiaRemisionProvider>();
+            services.AddScoped<INotaCreditoProvider, NotaCreditoProvider>();
+            services.AddScoped<INotaDebitoProvider, NotaDebitoProvider>();
+            services.AddScoped<IPercepcionProvider, PercepcionProvider>();
+            services.AddScoped<IResumenDiarioProvider, ResumenDiarioProvider>();
+            services.AddScoped<IRetencionProvider, RetencionProvider>();
 
 
             // Add application Repositories.
-            services.AddScoped<IEmpresaRepository, EmpresaRepository>();
-            services.AddScoped<IParametroEmpresaRepository, ParametroEmpresaRepository>();
             services.AddScoped<ICertificadoDigitalRepository, CertificadoDigitalRepository>();
             services.AddScoped<IDireccionSunatRepository, DireccionSunatRepository>();
+            services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+            services.AddScoped<IModalidadTransporteRepository, ModalidadTransporteRepository>();
+            services.AddScoped<IMonedaRepository, MonedaRepository>();
+            services.AddScoped<IParametroEmpresaRepository, ParametroEmpresaRepository>();
+            services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
+            services.AddScoped<ITipoDatoAdicionalRepository, TipoDatoAdicionalRepository>();
+            services.AddScoped<ITipoDiscrepanciaRepository, TipoDiscrepanciaRepository>();
+            services.AddScoped<ITipoDocumentoAnticipoRepository, TipoDocumentoAnticipoRepository>();
+            services.AddScoped<ITipoDocumentoContribuyenteRepository, TipoDocumentoContribuyenteRepository>();
+            services.AddScoped<ITipoDocumentoRelacionadoRepository, TipoDocumentoRelacionadoRepository>();
+            services.AddScoped<ITipoDocumentoRepository, TipoDocumentoRepository>();
+            services.AddScoped<ITipoImpuestoRepository, TipoImpuestoRepository>();
+            services.AddScoped<ITipoOperacionRepository, TipoOperacionRepository>();
+            services.AddScoped<ITipoPrecioRepository, TipoPrecioRepository>();
+            services.AddScoped<IUbigeoRepository, UbigeoRepository>();
+
         }
 
     }

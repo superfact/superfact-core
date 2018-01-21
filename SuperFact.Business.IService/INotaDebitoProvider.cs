@@ -1,12 +1,13 @@
 ﻿using SuperFact.Model.Contract.Intercambio;
 using SuperFact.Model.Contract.Modelos;
+using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
-using SuperFact.Entity.Model;
 
 namespace SuperFact.Business.IService
 {
-    public interface IFacturaProvider
+    public interface INotaDebitoProvider
     {
         Task<IEnumerable<DocumentoElectronico>> GetAll(string organization);
         Task<DocumentoElectronico> Get(string organization, int id);

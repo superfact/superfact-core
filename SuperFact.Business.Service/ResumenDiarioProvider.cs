@@ -1,22 +1,23 @@
 ﻿using SuperFact.Business.IService;
+using SuperFact.Data.IRepository;
+using SuperFact.Entity.Model;
+using SuperFact.Helper.Comun;
+using SuperFact.Helper.Provider;
+using SuperFact.Helper.Sunat;
+using SuperFact.Model.Contract.Intercambio;
+using SuperFact.Model.Contract.Modelos;
+using SuperFact.Ubl.Signed;
+using SuperFact.Ubl.Xml;
 using System;
 using System.Collections.Generic;
-using SuperFact.Model.Contract.Modelos;
+using System.Text;
 using System.Threading.Tasks;
-using SuperFact.Model.Contract.Intercambio;
-using SuperFact.Ubl.Xml;
-using SuperFact.Ubl.Signed;
-using SuperFact.Helper.Comun;
-using System.IO;
-using SuperFact.Helper.Sunat;
-using SuperFact.Entity.Model;
-using SuperFact.Data.IRepository;
-using SuperFact.Helper.Provider;
 
 namespace SuperFact.Business.Service
 {
-    public class FacturaProvider : IFacturaProvider
+    public class ResumenDiarioProvider : IResumenDiarioProvider
     {
+        private const string FormatoFecha = "yyyy-MM-dd";
         private readonly IDocumentoXml _documentoXml;
         private readonly ISerializador _serializador;
         private readonly ICertificador _certificador;
@@ -24,7 +25,7 @@ namespace SuperFact.Business.Service
         private readonly ICertificadoDigitalRepository _repositorycert;
         private readonly IParametroEmpresaRepository _repositoryparam;
         private readonly IEmpresaRepository _repositoryempresa;
-        public FacturaProvider(
+        public ResumenDiarioProvider(
             IDocumentoXml _documentoXml
             , ISerializador _serializador
             , ICertificador _certificador
@@ -41,28 +42,30 @@ namespace SuperFact.Business.Service
             this._repositoryempresa = _repositoryempresa;
             this._repositoryparam = _repositoryparam;
         }
-
-        public Task<DocumentoElectronico> Delete(string organization, int id)
+        public async Task<ResumenDiarioNuevo> Delete(string organization, int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<EnviarDocumentoResponse> Generar(string organization, DocumentoElectronico model)
+        public async Task<EnviarResumenResponse> Generar(string organization, ResumenDiarioNuevo model)
         {
             EmpresaModel empresa = await _repositoryempresa.Get(organization);
+            model.IdDocumento = string.Format("RC-{0:yyyyMMdd}-001", DateTime.Today);
+            model.FechaEmision = DateTime.Today.ToString(FormatoFecha);
+            model.FechaReferencia = DateTime.Today.AddDays(-1).ToString(FormatoFecha);
             model.Emisor = HelperTo.ToEmisor(empresa);
-            IEstructuraXml invoice = _documentoXml.Generar(model);
-            string XmlSinFirma = await _serializador.GenerarXml(invoice);
+            //  model.Resumenes = new List<GrupoResumenNuevo>()
+            IEstructuraXml summary = _documentoXml.Generar(model);
+            string XmlSinFirma = await _serializador.GenerarXml(summary);           
             CertificadoDigitalModel certificado = await _repositorycert.GetCertificate(organization);
-            FirmadoRequest firmado = HelperTo.ToSignedModel(certificado, XmlSinFirma, false);
+            FirmadoRequest firmado = HelperTo.ToSignedModel(certificado, XmlSinFirma, true);
             FirmadoResponse responseFirma = await _certificador.FirmarXml(firmado);
             ParametroEmpresaModel parametro = await _repositoryparam.GetConfiguration(certificado.Empresa);
-            EnviarDocumentoRequest request = HelperTo.ToSendDocument(model, parametro, responseFirma);
+            EnviarDocumentoRequest request =HelperTo.ToSendSummaryDocument(model, parametro, responseFirma);
 
-            File.WriteAllBytes("invoice.xml", Convert.FromBase64String(responseFirma.TramaXmlFirmado));
 
-            EnviarDocumentoResponse response = new EnviarDocumentoResponse();
-            var nombreArchivo = $"{request.Ruc}-{request.TipoDocumento}-{request.IdDocumento}";
+            EnviarResumenResponse response = new EnviarResumenResponse();
+            var nombreArchivo = $"{request.Ruc}-{request.IdDocumento}";            
             var tramaZip = await _serializador.GenerarZip(request.TramaXmlFirmado, nombreArchivo);
 
             _servicioSunatDocumentos.Inicializar(new ParametrosConexion
@@ -73,38 +76,38 @@ namespace SuperFact.Business.Service
                 EndPointUrl = request.EndPointUrl
             });
 
-            RespuestaSincrono resultado = _servicioSunatDocumentos.EnviarDocumento(new DocumentoSunat
+            RespuestaAsincrono resultado = _servicioSunatDocumentos.EnviarResumen(new DocumentoSunat
             {
-                TramaXml = tramaZip,
-                NombreArchivo = $"{nombreArchivo}.zip"
+                NombreArchivo = $"{nombreArchivo}.zip",
+                TramaXml = tramaZip
             });
-            if (!resultado.Exito)
+
+            if (resultado.Exito)
             {
-                response.Exito = false;
-                response.MensajeError = resultado.MensajeError;
+                response.NroTicket = resultado.NumeroTicket;
+                response.Exito = true;
+                response.NombreArchivo = nombreArchivo;
             }
             else
             {
-                response = await _serializador.GenerarDocumentoRespuesta(resultado.ConstanciaDeRecepcion);
-                File.WriteAllBytes("cdr_invoice.zip", Convert.FromBase64String(response.TramaZipCdr));
-                // Quitamos la R y la extensión devueltas por el Servicio.
-                response.NombreArchivo = nombreArchivo;
+                response.MensajeError = resultado.MensajeError;
+                response.Exito = false;
             }
-            //guardar la respuesta
+                       //guardar la respuesta
             return response;
         }
 
-        public Task<DocumentoElectronico> Get(string organization, int id)
+        public async Task<ResumenDiarioNuevo> Get(string organization, int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<DocumentoElectronico>> GetAll(string organization)
+        public async Task<IEnumerable<ResumenDiarioNuevo>> GetAll(string organization)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DocumentoElectronico> Put(string organization, DocumentoElectronico model)
+        public async Task<ResumenDiarioNuevo> Put(string organization, ResumenDiarioNuevo model)
         {
             throw new NotImplementedException();
         }

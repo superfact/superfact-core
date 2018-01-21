@@ -1,21 +1,22 @@
 ﻿using SuperFact.Business.IService;
+using SuperFact.Data.IRepository;
+using SuperFact.Entity.Model;
+using SuperFact.Helper.Comun;
+using SuperFact.Helper.Provider;
+using SuperFact.Helper.Sunat;
+using SuperFact.Model.Contract.Intercambio;
+using SuperFact.Model.Contract.Modelos;
+using SuperFact.Ubl.Signed;
+using SuperFact.Ubl.Xml;
 using System;
 using System.Collections.Generic;
-using SuperFact.Model.Contract.Modelos;
-using System.Threading.Tasks;
-using SuperFact.Model.Contract.Intercambio;
-using SuperFact.Ubl.Xml;
-using SuperFact.Ubl.Signed;
-using SuperFact.Helper.Comun;
 using System.IO;
-using SuperFact.Helper.Sunat;
-using SuperFact.Entity.Model;
-using SuperFact.Data.IRepository;
-using SuperFact.Helper.Provider;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SuperFact.Business.Service
 {
-    public class FacturaProvider : IFacturaProvider
+    public class GuiaRemisionProvider : IGuiaRemisionProvider
     {
         private readonly IDocumentoXml _documentoXml;
         private readonly ISerializador _serializador;
@@ -24,7 +25,7 @@ namespace SuperFact.Business.Service
         private readonly ICertificadoDigitalRepository _repositorycert;
         private readonly IParametroEmpresaRepository _repositoryparam;
         private readonly IEmpresaRepository _repositoryempresa;
-        public FacturaProvider(
+        public GuiaRemisionProvider(
             IDocumentoXml _documentoXml
             , ISerializador _serializador
             , ICertificador _certificador
@@ -41,25 +42,24 @@ namespace SuperFact.Business.Service
             this._repositoryempresa = _repositoryempresa;
             this._repositoryparam = _repositoryparam;
         }
-
-        public Task<DocumentoElectronico> Delete(string organization, int id)
+        public async Task<GuiaRemision> Delete(string organization, int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<EnviarDocumentoResponse> Generar(string organization, DocumentoElectronico model)
+        public async Task<EnviarDocumentoResponse> Generar(string organization, GuiaRemision model)
         {
             EmpresaModel empresa = await _repositoryempresa.Get(organization);
-            model.Emisor = HelperTo.ToEmisor(empresa);
+            model.Remitente = HelperTo.ToEmisor(empresa);
             IEstructuraXml invoice = _documentoXml.Generar(model);
             string XmlSinFirma = await _serializador.GenerarXml(invoice);
             CertificadoDigitalModel certificado = await _repositorycert.GetCertificate(organization);
             FirmadoRequest firmado = HelperTo.ToSignedModel(certificado, XmlSinFirma, false);
             FirmadoResponse responseFirma = await _certificador.FirmarXml(firmado);
             ParametroEmpresaModel parametro = await _repositoryparam.GetConfiguration(certificado.Empresa);
-            EnviarDocumentoRequest request = HelperTo.ToSendDocument(model, parametro, responseFirma);
+            EnviarDocumentoRequest request = HelperTo.ToSendGuiaRemisionDocument(model, parametro, responseFirma);
 
-            File.WriteAllBytes("invoice.xml", Convert.FromBase64String(responseFirma.TramaXmlFirmado));
+            File.WriteAllBytes("guide-remision.xml", Convert.FromBase64String(responseFirma.TramaXmlFirmado));
 
             EnviarDocumentoResponse response = new EnviarDocumentoResponse();
             var nombreArchivo = $"{request.Ruc}-{request.TipoDocumento}-{request.IdDocumento}";
@@ -86,7 +86,7 @@ namespace SuperFact.Business.Service
             else
             {
                 response = await _serializador.GenerarDocumentoRespuesta(resultado.ConstanciaDeRecepcion);
-                File.WriteAllBytes("cdr_invoice.zip", Convert.FromBase64String(response.TramaZipCdr));
+                File.WriteAllBytes("cdr_guide-remision.zip", Convert.FromBase64String(response.TramaZipCdr));
                 // Quitamos la R y la extensión devueltas por el Servicio.
                 response.NombreArchivo = nombreArchivo;
             }
@@ -94,17 +94,17 @@ namespace SuperFact.Business.Service
             return response;
         }
 
-        public Task<DocumentoElectronico> Get(string organization, int id)
+        public async Task<GuiaRemision> Get(string organization, int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<DocumentoElectronico>> GetAll(string organization)
+        public async Task<IEnumerable<GuiaRemision>> GetAll(string organization)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DocumentoElectronico> Put(string organization, DocumentoElectronico model)
+        public async Task<GuiaRemision> Put(string organization, GuiaRemision model)
         {
             throw new NotImplementedException();
         }
